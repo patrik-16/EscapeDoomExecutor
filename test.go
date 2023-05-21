@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	dockerBuild := exec.Command("docker", "build", "-t", "my-image", ".")
+	fmt.Println("Welcome")
+	dockerBuild := exec.Command("docker", "build", "-t", "my-image", "-f", ".Dockerfile", ".")
 	dockerBuild.Stderr = os.Stderr
 
 	_, err := dockerBuild.Output()
