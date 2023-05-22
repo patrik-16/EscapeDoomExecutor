@@ -78,7 +78,7 @@ func setupForExecution(input *Request) string {
 	}
 
 	//call Docker
-	curr := executeDocker(input.PlayerSessionId+"/.Dockerfile", input.PlayerSessionId)
+	curr := executeDocker(".Dockerfile", input.PlayerSessionId)
 
 	err23 := os.RemoveAll(input.PlayerSessionId + "/")
 	if err23 != nil {
@@ -93,6 +93,7 @@ func executeDocker(dockerFileName string, name string) string {
 
 	fmt.Println("Welcome")
 	dockerBuild := exec.Command("docker", "build", "-t", name, "-f", dockerFileName, ".")
+	dockerBuild.Dir = name + "/"
 	dockerBuild.Stderr = os.Stderr
 
 	_, err := dockerBuild.Output()
