@@ -2,13 +2,13 @@ FROM test
 
 WORKDIR /app
 
-COPY go.mod ./
+COPY go.mod go.sum  ./
 RUN go mod download
 
 COPY *.go ./
 COPY *.java ./
-COPY .Dockerfile ./.Dockerfile
+COPY *.Dockerfile ./
 
-RUN go build -o /go-docker-demo
+RUN CGO_ENABLED=0 GOOS=linux go build -o /go-docker-demo
 
 CMD [ "/go-docker-demo" ]
