@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -14,6 +13,11 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
+
+type output struct {
+	out []byte
+	err error
+}
 
 func ReadConfig(configFile string) kafka.ConfigMap {
 
@@ -58,9 +62,23 @@ func setupForExecution(input *Request) string {
 
 	//make Language Docker File
 	//TODO make it customizable for all case
-	copy("java.Dockerfile", input.PlayerSessionId+"/"+".Dockerfile")
+	dockerfile := "java.Dockerfile"
+	samplefile := "app.java"
+	switch {
+	case input.Language == "Java":
+		dockerfile = "java.Dockerfile"
+		samplefile = "app.java"
+	case input.Language == "Javascript":
+		dockerfile = "javascript.Dockerfile"
+		samplefile = "app.js"
+	case input.Language == "Python":
+		dockerfile = "python.Dockerfile"
+		samplefile = "app.py"
+	}
 
-	filename := input.PlayerSessionId + "/" + "app.java"
+	copy(dockerfile, input.PlayerSessionId+"/"+".Dockerfile")
+
+	filename := input.PlayerSessionId + "/" + samplefile
 
 	var _, err = os.Stat(filename)
 	//make code File
@@ -89,6 +107,7 @@ func setupForExecution(input *Request) string {
 	return curr
 }
 
+// TODO MAKE ALL RETURNS USEFUL
 func executeDocker(dockerFileName string, name string) string {
 
 	fmt.Println("Welcome")
@@ -101,30 +120,67 @@ func executeDocker(dockerFileName string, name string) string {
 		// if there was any error, print it here
 		fmt.Println("could not run command: ", err)
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
 	// otherwise, print the output from running the command
-	cmd := exec.CommandContext(ctx, "docker", "run", "--rm", name)
-	cmd.Stderr = os.Stderr
 
-	out1, err1 := cmd.Output()
-	if err1 != nil {
-		// if there was any error, print it here
-		fmt.Println("could not run command: ", err1)
+	ch := make(chan output)
+
+	go func() {
+		cmd := exec.Command("docker", "run", "--rm", name)
+		out, err := cmd.CombinedOutput()
+		ch <- output{out, err}
+	}()
+
+	select {
+	case <-time.After(20 * time.Second):
+		fmt.Println("timed out")
+		/*deleteRunningImage := exec.Command("docker", "rm", contname)
+		_, _ = deleteRunningImage.Output()*/
+
+		dockerDeleteRunningImageCOntainers := exec.Command("docker", "ps", "-a", "--filter", "ancestor="+name, "--format", "\"{{.ID}}\"")
+		dockerDeleteRunningImageCOntainers.Stderr = os.Stderr
+
+		conts, err234 := dockerDeleteRunningImageCOntainers.Output()
+		if err234 != nil {
+			// if there was any error, print it here
+			fmt.Println("could not run command: ", err)
+		}
+
+		fmt.Println(string(conts))
+
+		rer := string(conts)[:len(string(conts))-2]
+
+		deltetConts := exec.Command("docker", "rm", "-f", rer)
+		_, errrrr := deltetConts.Output()
+		if errrrr != nil {
+			fmt.Println("could not run command: ", errrrr)
+		}
+		dockerDeleteImage := exec.Command("docker", "rmi", "-f", name)
+		dockerDeleteImage.Stderr = os.Stderr
+
+		_, err234 = dockerDeleteImage.Output()
+		if err234 != nil {
+			// if there was any error, print it here
+			fmt.Println("could not run command: ", err)
+		}
+
+	case x := <-ch:
+
+		fmt.Printf("program done; out: %q\n", string(x.out))
+		if x.err != nil {
+			fmt.Printf("program errored: %s\n", x.err)
+		}
+		dockerDeleteImage := exec.Command("docker", "rmi", name)
+		dockerDeleteImage.Stderr = os.Stderr
+
+		_, err234 := dockerDeleteImage.Output()
+		if err234 != nil {
+			// if there was any error, print it here
+			fmt.Println("could not run command: ", err)
+		}
+
+		return string(x.out)
 	}
-	fmt.Println("Output: ", string(out1))
-
-	dockerDeleteImage := exec.Command("docker", "rmi", name)
-	dockerDeleteImage.Stderr = os.Stderr
-
-	_, err234 := dockerDeleteImage.Output()
-	if err234 != nil {
-		// if there was any error, print it here
-		fmt.Println("could not run command: ", err)
-	}
-
-	return string(out1)
+	return ""
 }
 
 func copy(src, dst string) (int64, error) {
