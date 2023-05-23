@@ -6,4 +6,4 @@ COPY ${JAR_FILE} app.java
 
 RUN javac app.java
 
-CMD ["java", "app"]
+CMD ["timeout" ,"10","java", "app"]
