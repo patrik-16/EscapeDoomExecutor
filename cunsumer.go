@@ -72,7 +72,7 @@ func main() {
 
 			go setupForExecution(&request)
 
-			//sendMessage("computedCode", conf, &request, out)
+			sendMessage("computedCode", conf, &request, "done")
 		}
 	}
 	c.Close()

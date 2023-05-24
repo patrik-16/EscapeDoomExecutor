@@ -52,10 +52,13 @@ func ReadConfig(configFile string) kafka.ConfigMap {
 
 func setupForExecution(input *Request) string {
 
+	shouldExecute := true
+
 	//make directory
 	if _, err := os.Stat(input.PlayerSessionId); errors.Is(err, os.ErrNotExist) {
 		err := os.Mkdir(input.PlayerSessionId, os.ModePerm)
 		if err != nil {
+			shouldExecute = false
 			log.Println(err)
 		}
 	}
@@ -86,22 +89,25 @@ func setupForExecution(input *Request) string {
 		file, err := os.Create(filename)
 		if err != nil {
 			fmt.Println(err)
-			return ""
+			shouldExecute = false
 		}
 		fmt.Fprintf(file, input.Code)
 		defer file.Close()
 	} else {
 		fmt.Println("File already exists!", filename)
-		return ""
+		shouldExecute = false
 	}
 
+	curr := ""
+
 	//call Docker
-	curr := executeDocker(".Dockerfile", input.PlayerSessionId)
+	if shouldExecute {
+		curr = executeDocker(".Dockerfile", input.PlayerSessionId)
+	}
 
 	err23 := os.RemoveAll(input.PlayerSessionId + "/")
 	if err23 != nil {
 		fmt.Println("lel not deleted")
-		return ""
 	}
 
 	return curr
@@ -153,7 +159,6 @@ func executeDocker(dockerFileName string, name string) string {
 			// if there was any error, print it here
 			fmt.Println("could not run command: ", err)
 		}
-
 		return string(x.out)
 	}
 	return ""
