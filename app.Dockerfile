@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine AS builder
+FROM paxy0/escapedoom-golang-base AS builder
 
 ENV PATH="/go/bin:${PATH}"
 ENV GO111MODULE=on
@@ -19,12 +19,5 @@ RUN git clone https://github.com/edenhill/librdkafka.git && cd librdkafka && ./c
 COPY . .
 
 RUN go build -tags musl --ldflags "-extldflags -static" -o main .
-
-FROM scratch AS runner
-
-COPY --from=builder /go/src/main /
-COPY --from=builder /go/src/getting-started.properties /
-
-EXPOSE 8080
 
 ENTRYPOINT ["./main", "getting-started.properties"]

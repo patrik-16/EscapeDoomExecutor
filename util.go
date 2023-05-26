@@ -59,6 +59,7 @@ func setupForExecution(input *Request) string {
 		err := os.Mkdir(input.PlayerSessionId, os.ModePerm)
 		if err != nil {
 			shouldExecute = false
+			fmt.Println("failed Making the directory")
 			log.Println(err)
 		}
 	}
