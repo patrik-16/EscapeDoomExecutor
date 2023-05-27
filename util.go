@@ -50,7 +50,7 @@ func ReadConfig(configFile string) kafka.ConfigMap {
 
 }
 
-func setupForExecution(input *Request) string {
+func setupForExecution(input *Request, configMap kafka.ConfigMap) string {
 
 	shouldExecute := true
 
@@ -110,6 +110,8 @@ func setupForExecution(input *Request) string {
 	if err23 != nil {
 		fmt.Println("lel not deleted")
 	}
+
+	sendMessage("computedCode", configMap, input, curr)
 
 	return curr
 }

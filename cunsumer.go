@@ -70,9 +70,7 @@ func main() {
 			}
 			fmt.Println("the request is", request)
 
-			go setupForExecution(&request)
-
-			sendMessage("computedCode", conf, &request, "done")
+			go setupForExecution(&request, conf)
 		}
 	}
 	c.Close()
