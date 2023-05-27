@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -122,12 +123,16 @@ func executeDocker(dockerFileName string, name string) string {
 	fmt.Println("Welcome")
 	dockerBuild := exec.Command("docker", "build", "-t", name, "-f", dockerFileName, ".")
 	dockerBuild.Dir = name + "/"
-	dockerBuild.Stderr = os.Stderr
+	var errb bytes.Buffer
+	dockerBuild.Stderr = &errb
+	//dockerBuild.Stdout = &outb
 
 	_, err := dockerBuild.Output()
 	if err != nil {
 		// if there was any error, print it here
-		fmt.Println("could not run command: ", err)
+		fmt.Println("could not run command: ")
+
+		return "COMPILE ERROR"
 	}
 	// otherwise, print the output from running the command
 
