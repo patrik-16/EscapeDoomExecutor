@@ -93,7 +93,7 @@ func setupForExecution(input *Request, configMap kafka.ConfigMap) string {
 			fmt.Println(err)
 			shouldExecute = false
 		}
-		fmt.Fprintf(file, input.Code)
+		os.WriteFile(file.Name(), []byte(input.Code), 0644)
 		defer file.Close()
 	} else {
 		fmt.Println("File already exists!", filename)
@@ -125,6 +125,7 @@ func executeDocker(dockerFileName string, name string) string {
 	dockerBuild.Dir = name + "/"
 	var errb bytes.Buffer
 	dockerBuild.Stderr = &errb
+	dockerBuild.Stderr = os.Stderr
 	//dockerBuild.Stdout = &outb
 
 	_, err := dockerBuild.Output()

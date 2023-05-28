@@ -68,7 +68,7 @@ func main() {
 			if err2 != nil {
 				fmt.Println(err2)
 			}
-			fmt.Println("the request is", request)
+			fmt.Println("the request is", request.Code)
 
 			go setupForExecution(&request, conf)
 		}
