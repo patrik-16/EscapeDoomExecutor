@@ -13,7 +13,7 @@ pipeline {
                 echo "Current Job Name2: ${JOB_NAME}"
                 echo "Current Build ID2: ${BUILD_ID}"
 
-
+                sh 'go version'
             }
         }
 
