@@ -9,6 +9,11 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 echo 'Not needed cause git is already in settings'
+                echo "Current Job Name: ${env.JOB_NAME}"
+                echo "Current Build ID: ${env.BUILD_ID}"
+                echo "Current Job Name2: ${JOB_NAME}"
+                echo "Current Build ID2: ${BUILD_ID}"
+
                 sh 'go version'
             }
         }
