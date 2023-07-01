@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
+    }
+
     stages {
         stage('Git Checkout') {
             steps {
@@ -15,10 +19,10 @@ pipeline {
                 sh 'go build'
             }
         }
+
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
-
                 echo 'Done!'
             }
         }
