@@ -1,13 +1,3 @@
-1. stage
-  pull git
-
-2. stage
-  build docker container
-
-3. stage
-  deploy
-
-
 pipeline {
     agent any
 
@@ -25,8 +15,12 @@ pipeline {
                 sh 'go build'
             }
         }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying...'
 
-
-
+                echo 'Done!'
+            }
+        }
     }
 }
