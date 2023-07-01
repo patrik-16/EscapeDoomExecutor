@@ -5,7 +5,7 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 echo 'Not needed cause git is already in settings'
-                sh 'go version'
+
             }
         }
 
