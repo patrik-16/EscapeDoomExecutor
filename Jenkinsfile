@@ -13,6 +13,7 @@ pipeline {
             steps {
                 echo 'Building...'
                 sh 'go build'
+                sh 'go version'
             }
         }
         stage('Deploy') {
