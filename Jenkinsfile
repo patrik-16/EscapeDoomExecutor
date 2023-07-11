@@ -24,7 +24,20 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying...'
+                echo 'Deploy...'
+
+                sh 'chmod +x ./deployz1.sh'
+                sh 'chmod +x ./deployz2.sh'
+
+                sh './deployz1.sh'
+                script {
+                    sleep 5
+                }
+
+                sh './deployz2.sh &'
+                script {
+                    sleep 120
+                }
                 echo 'Done!'
             }
         }
